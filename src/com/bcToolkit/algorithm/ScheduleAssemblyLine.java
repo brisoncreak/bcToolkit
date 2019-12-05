@@ -98,10 +98,14 @@ public class ScheduleAssemblyLine {
     public static class MergeRes{
         public int line1;//到line1的最小时间
         public int line2;//到line2的最小时间
+        public int line1Flag;
+        public int line2Flag;
 
-        public MergeRes(int a, int b){
+        public MergeRes(int a, int b, int c, int d){
             this.line1 = a;
             this.line2 = b;
+            this.line1Flag = c;
+            this.line2Flag = d;
         }
 
     }
@@ -109,14 +113,13 @@ public class ScheduleAssemblyLine {
     public static MergeRes mergeStation(int a1[], int a2[], int t1[], int t2[],
                                    int low, int high, int[] l1, int[] l2){
 
-        if(low==high) return new MergeRes(a1[low], a2[low]);
+        if(low==high) return new MergeRes(a1[low], a2[low],1 ,2);
 
         int mid = (low+high)/2;//计算中点
 
         MergeRes leftRes = mergeStation(a1, a2, t1, t2, low, mid, l1, l2);
         MergeRes rightRes = mergeStation(a1, a2, t1, t2,mid+1, high, l1, l2);
-/*
-        //四选一
+
         int line1to1 = leftRes.line1+rightRes.line1+t1[mid]*(rightRes.line1Flag-1);
         int line2to1 = leftRes.line2+rightRes.line1+t2[mid]*(2-rightRes.line1Flag);
         int line2to2 = leftRes.line2+rightRes.line2+t2[mid]*(2-rightRes.line2Flag);
@@ -145,32 +148,8 @@ public class ScheduleAssemblyLine {
             line2Flag = 1;
             l2[mid+1] = 1;
         }
-*/
-        //四选一
-        int line1to1 = leftRes.line1+rightRes.line1;
-        int line1to2 = leftRes.line1+rightRes.line2+t1[mid];
-        int line2to2 = leftRes.line2+rightRes.line2;
-        int line2to1 = leftRes.line2+rightRes.line1+t2[mid];
 
-        int line1Min = 0, line2Min = 0;
-
-        if(line1to1 <= line1to2)
-        {
-            line1Min = line1to1;
-            l1[mid+1] = 1;
-        }else{
-            line1Min = line1to2;
-            l1[mid+1] = 2;
-        }
-        if(line2to2 <= line2to1)
-        {
-            line2Min = line2to2;
-            l2[mid+1] = 2;
-        }else{
-            line2Min = line2to1;
-            l2[mid+1] = 1;
-        }
-        return new MergeRes(line1Min, line2Min);
+        return new MergeRes(line1Min, line2Min,line1Flag, line2Flag);
     }
     //处理递归结果
     public static Result fastestWayDC(int a1[],int a2[],int t1[],int t2[],
@@ -187,19 +166,18 @@ public class ScheduleAssemblyLine {
         l1[0] = 1;
         l2[0] = 2;//记录初始化
 
-        MergeRes res = mergeStation(a1, a2, t1, t2, 4, 5, l1, l2);
+        MergeRes res = mergeStation(a1, a2, t1, t2, 0, n-1, l1, l2);
 
         //记录最大值 最后出哪条流水线
         int fstar, lstar;
         if(res.line1 <= res.line2)
         {
             fstar = res.line1;
-            lstar = l1[n-1];
+            lstar = res.line1Flag;
         }else{
             fstar = res.line2;
-            lstar = l2[n-1];
+            lstar = res.line2Flag;
         }
-        System.out.println(res.line1+" "+res.line2);
 
         return new Result(fstar, lstar, l1, l2);
     }

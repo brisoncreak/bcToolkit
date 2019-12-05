@@ -8,7 +8,7 @@ import java.util.Random;
 public class Main {
 
     public static void main(String[] args) {
-        int[] a1 = {7, 9, 3, 4, 8, 4};
+/*        int[] a1 = {7, 9, 3, 4, 8, 4};
         int[] a2 = {8, 5, 6, 4, 5, 7};
         int[] t1 = {2, 3, 1, 3, 4};
         int[] t2 = {2, 1, 2, 2, 1};
@@ -23,10 +23,10 @@ public class Main {
                 t1.clone(), t2.clone(), e1, e2, x1, x2, n);
         System.out.println("最终结果："+res0.fstar+" "+res0.lstar);
 
-
-/*        //比较动态规划算法和分治算法
+*/
+        //比较动态规划算法和分治算法
         //设定随机生成数组的规模
-        int length = 10;
+        int length = 4;
         //随机生成整数数组
         int[] a1 = RandomGetter.getRandomArray(length, 0, 10);
         int[] a2 = RandomGetter.getRandomArray(length, 0, 10);
@@ -99,7 +99,7 @@ public class Main {
             System.out.print(res0.l2[i]+" ");
         }
         System.out.print("\n");
-*/
+
     }
 
 }
