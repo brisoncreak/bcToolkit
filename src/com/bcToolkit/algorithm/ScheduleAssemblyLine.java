@@ -1,6 +1,7 @@
 package com.bcToolkit.algorithm;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
+import java.util.Arrays;
+import java.util.Collections;
 
 public class ScheduleAssemblyLine {
     //流水线调度问题：两条流水线可同时混用，但切换流水线需要开销
@@ -96,16 +97,18 @@ public class ScheduleAssemblyLine {
     //====分治========================================================================//
     //数据结构用于保存递归结果
     public static class MergeRes{
-        public int line1;//到line1的最小时间
-        public int line2;//到line2的最小时间
-        public int line1Flag;
-        public int line2Flag;
+        public int l1;//➡️
+        public int l2;//⬇️
+        public int l3;//↘️
+        public int l4;//↗️
+
 
         public MergeRes(int a, int b, int c, int d){
-            this.line1 = a;
-            this.line2 = b;
-            this.line1Flag = c;
-            this.line2Flag = d;
+            this.l1 = a;
+            this.l2 = b;
+            this.l3 = c;
+            this.l4 = d;
+
         }
 
     }
@@ -113,43 +116,29 @@ public class ScheduleAssemblyLine {
     public static MergeRes mergeStation(int a1[], int a2[], int t1[], int t2[],
                                    int low, int high, int[] l1, int[] l2){
 
-        if(low==high) return new MergeRes(a1[low], a2[low],1 ,2);
+        if(low==high) return new MergeRes(a1[low], a2[low], 999, 999);
 
         int mid = (low+high)/2;//计算中点
 
         MergeRes leftRes = mergeStation(a1, a2, t1, t2, low, mid, l1, l2);
         MergeRes rightRes = mergeStation(a1, a2, t1, t2,mid+1, high, l1, l2);
 
-        int line1to1 = leftRes.line1+rightRes.line1+t1[mid]*(rightRes.line1Flag-1);
-        int line2to1 = leftRes.line2+rightRes.line1+t2[mid]*(2-rightRes.line1Flag);
-        int line2to2 = leftRes.line2+rightRes.line2+t2[mid]*(2-rightRes.line2Flag);
-        int line1to2 = leftRes.line1+rightRes.line2+t1[mid]*(rightRes.line2Flag-1);
+        int L1 = leftRes.l1, L2 = leftRes.l2, L3 = leftRes.l3, L4 = leftRes.l4;
+        int R1 = rightRes.l1, R2 = rightRes.l2, R3 = rightRes.l3, R4 = rightRes.l4;
+        int T1 = t1[mid];//↘️
+        int T2 = t2[mid];//↗️
 
-        int line1Flag = 0, line2Flag = 0;
-        int line1Min = 0, line2Min = 0;
+        int[] new1 = {L1+R1, L3+R4, L1+R4+T1, L3+R1+T2};
+        int[] new2 = {L2+R2, L4+R3, L4+R2+T1, L2+R3+T2};
+        int[] new3 = {L1+R3, L3+R2, L1+R2+T1, L3+R3+T2};
+        int[] new4 = {L4+R1, L2+R4, L4+R4+T1, L2+R1+T2};
 
-        if(line1to1 <= line2to1)
-        {
-            line1Min = line1to1;
-            line1Flag = 1;
-            l1[mid+1] = 1;
-        }else{
-            line1Min = line2to1;
-            line1Flag = 2;
-            l1[mid+1] = 2;
-        }
-        if(line2to2 <= line1to2)
-        {
-            line2Min = line2to2;
-            line2Flag = 2;
-            l2[mid+1] = 2;
-        }else{
-            line2Min = line1to2;
-            line2Flag = 1;
-            l2[mid+1] = 1;
-        }
+        int line1Min = getMin(new1,4);
+        int line2Min = getMin(new2,4);
+        int line3Min = getMin(new3,4);
+        int line4Min = getMin(new4,4);
 
-        return new MergeRes(line1Min, line2Min,line1Flag, line2Flag);
+        return new MergeRes(line1Min, line2Min,line3Min, line4Min);
     }
     //处理递归结果
     public static Result fastestWayDC(int a1[],int a2[],int t1[],int t2[],
@@ -170,17 +159,24 @@ public class ScheduleAssemblyLine {
 
         //记录最大值 最后出哪条流水线
         int fstar, lstar;
-        if(res.line1 <= res.line2)
-        {
-            fstar = res.line1;
-            lstar = res.line1Flag;
-        }else{
-            fstar = res.line2;
-            lstar = res.line2Flag;
-        }
 
-        return new Result(fstar, lstar, l1, l2);
+        int[] res0 = {res.l1, res.l2, res.l3, res.l4};
+
+        fstar = getMin(res0, 4);
+
+        return new Result(fstar, 0, l1, l2);
     }
+
+    public static int getMin(int[] a,  int n)
+    {
+        int min = Integer.MAX_VALUE;
+        for(int i=0;i<n;i++)
+        {
+            if(a[i]<=min) min = a[i];
+        }
+        return min;
+    }
+
 
 }
 

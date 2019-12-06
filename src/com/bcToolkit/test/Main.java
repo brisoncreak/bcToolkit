@@ -24,9 +24,10 @@ public class Main {
         System.out.println("最终结果："+res0.fstar+" "+res0.lstar);
 
 */
+
         //比较动态规划算法和分治算法
         //设定随机生成数组的规模
-        int length = 4;
+        int length = 10;
         //随机生成整数数组
         int[] a1 = RandomGetter.getRandomArray(length, 0, 10);
         int[] a2 = RandomGetter.getRandomArray(length, 0, 10);
