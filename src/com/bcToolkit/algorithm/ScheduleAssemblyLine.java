@@ -94,7 +94,7 @@ public class ScheduleAssemblyLine {
 
 
 
-    //====分治========================================================================//
+//====分治========================================================================//
     //数据结构用于保存递归结果
     public static class MergeRes{
         public int l1;//➡️
@@ -110,18 +110,33 @@ public class ScheduleAssemblyLine {
             this.l4 = d;
 
         }
+    }
+    //保存最终结果
+    public static class ResultDC{
+        public int fstar;//最短用时
+        public int lstar;//结束时流水线
+        public int[] l1, l2, l3, l4;
 
+        public ResultDC(int mintime, int lstar, int[] l1, int[] l2, int[] l3, int[] l4)
+        {
+            this.fstar = mintime;
+            this.lstar = lstar;
+            this.l1 = l1;
+            this.l2 = l2;
+            this.l3 = l3;
+            this.l4 = l4;
+        }
     }
     //将站两两合并
     public static MergeRes mergeStation(int a1[], int a2[], int t1[], int t2[],
-                                   int low, int high, int[] l1, int[] l2){
+                                   int low, int high, int[] l1, int[] l2, int[] l3, int[] l4){
 
         if(low==high) return new MergeRes(a1[low], a2[low], 999, 999);
 
         int mid = (low+high)/2;//计算中点
 
-        MergeRes leftRes = mergeStation(a1, a2, t1, t2, low, mid, l1, l2);
-        MergeRes rightRes = mergeStation(a1, a2, t1, t2,mid+1, high, l1, l2);
+        MergeRes leftRes = mergeStation(a1, a2, t1, t2, low, mid, l1, l2, l3, l4);
+        MergeRes rightRes = mergeStation(a1, a2, t1, t2,mid+1, high, l1, l2, l3, l4);
 
         int L1 = leftRes.l1, L2 = leftRes.l2, L3 = leftRes.l3, L4 = leftRes.l4;
         int R1 = rightRes.l1, R2 = rightRes.l2, R3 = rightRes.l3, R4 = rightRes.l4;
@@ -133,15 +148,21 @@ public class ScheduleAssemblyLine {
         int[] new3 = {L1+R3, L3+R2, L1+R2+T1, L3+R3+T2};
         int[] new4 = {L4+R1, L2+R4, L4+R4+T1, L2+R1+T2};
 
-        int line1Min = getMin(new1,4);
-        int line2Min = getMin(new2,4);
-        int line3Min = getMin(new3,4);
-        int line4Min = getMin(new4,4);
+        int[] line1res = getMin(new1,4);
+        int[] line2res = getMin(new2,4);
+        int[] line3res = getMin(new3,4);
+        int[] line4res = getMin(new4,4);
 
-        return new MergeRes(line1Min, line2Min,line3Min, line4Min);
+        l1[mid] = line1res[1]+1;
+        l2[mid] = line2res[1]+1;
+        l3[mid] = line3res[1]+1;
+        l4[mid] = line4res[1]+1;
+
+
+        return new MergeRes(line1res[0], line2res[0],line3res[0], line4res[0]);
     }
     //处理递归结果
-    public static Result fastestWayDC(int a1[],int a2[],int t1[],int t2[],
+    public static ResultDC fastestWayDC(int a1[],int a2[],int t1[],int t2[],
                                     int e1,int e2,int x1,int x2,int n){
         //考虑进入离开流水线时间
         a1[0] += e1;
@@ -151,30 +172,105 @@ public class ScheduleAssemblyLine {
         a2[n-1] += x2;
 
         int[] l1 = new int[n];
-        int[] l2 = new int[n];//记录每一步切换情况
+        int[] l2 = new int[n];
+        int[] l3 = new int[n];
+        int[] l4 = new int[n];//记录每一步切换情况
         l1[0] = 1;
-        l2[0] = 2;//记录初始化
+        l2[0] = 2;
+        l3[0] = 3;
+        l4[0] = 4;//记录初始化
 
-        MergeRes res = mergeStation(a1, a2, t1, t2, 0, n-1, l1, l2);
+        MergeRes res = mergeStation(a1, a2, t1, t2, 0, n-1, l1, l2, l3, l4);
 
         //记录最大值 最后出哪条流水线
         int fstar, lstar;
 
         int[] res0 = {res.l1, res.l2, res.l3, res.l4};
 
-        fstar = getMin(res0, 4);
+        int[] min = getMin(res0, 4);
 
-        return new Result(fstar, 0, l1, l2);
+        fstar = min[0];
+        lstar = min[1]+1;
+
+        return new ResultDC(fstar, lstar, l1, l2, l3, l4);
     }
-
-    public static int getMin(int[] a,  int n)
-    {
+    //取得数组中最小值和下标
+    public static int[] getMin(int[] a,  int n) {
         int min = Integer.MAX_VALUE;
-        for(int i=0;i<n;i++)
-        {
-            if(a[i]<=min) min = a[i];
+        int index = -1;
+
+        for (int i = 0; i < n; i++) {
+            if (a[i] < min) {min = a[i];
+            index = i;}
         }
-        return min;
+        int[] res = {min, index};
+        return res;
+    }
+    //递归打印结果
+    public static void printStationRecursiveDC(int i, int[] l1,int[] l2, int[] l3, int[] l4, int low, int high){
+        //终止条件
+        if(low==high) {
+            System.out.println("line "+i+", station "+(low+1)+"\n");
+            return;
+        }
+        int mid = (low+high)/2;//计算中点
+
+        int a=0, b=0;
+
+        //打印结果
+        if(low+1==high)
+        {
+            if(i==1) {
+                System.out.println("line "+1+", station "+(mid+1)+"\n");
+                System.out.println("line "+1+", station "+(mid+2)+"\n");
+            }
+            if(i==2) {
+                System.out.println("line "+2+", station "+(mid+1)+"\n");
+                System.out.println("line "+2+", station "+(mid+2)+"\n");
+            }
+            if(i==3) {
+                System.out.println("line "+1+", station "+(mid+1)+"\n");
+                System.out.println("line "+2+", station "+(mid+2)+"\n");
+            }
+            if(i==4) {
+                System.out.println("line "+2+", station "+(mid+1)+"\n");
+                System.out.println("line "+1+", station "+(mid+2)+"\n");
+            }
+
+        }else {
+            if(i==1){
+                int temp = l1[mid];
+                if(temp==1){a=1;b=1;}
+                else if(temp==2){a=3;b=4;}
+                else if(temp==3){a=1;b=4;}
+                else{a=3;b=1;}
+
+            }else if(i==2){
+                int temp = l2[mid];
+                if(temp==1){a=2;b=2;}
+                else if(temp==2){a=4;b=3;}
+                else if(temp==3){a=4;b=2;}
+                else{a=2;b=3;}
+            }else if(i==3){
+                int temp = l3[mid];
+                if(temp==1){a=1;b=3;}
+                else if(temp==2){a=3;b=2;}
+                else if(temp==3){a=1;b=2;}
+                else{a=3;b=3;}
+            }else{
+                int temp = l4[mid];
+                if(temp==1){a=4;b=1;}
+                else if(temp==2){a=2;b=4;}
+                else if(temp==3){a=4;b=4;}
+                else{a=2;b=1;}
+
+            }
+            printStationRecursiveDC(a, l1, l2, l3, l4, low, mid);//递归打印前一半
+            printStationRecursiveDC(b, l1, l2, l3, l4, mid + 1, high);//递归打印后一半
+
+        }
+
+
     }
 
 
@@ -219,4 +315,94 @@ public class ScheduleAssemblyLine {
         }
         System.out.print("\n");
         System.out.println(res0.fstar);
+
+------------------------比较分治算法和动态规划运行时间------------------------
+        //设定随机生成数组的规模
+        int length = 5;
+        //随机生成整数数组
+        int[] a1 = RandomGetter.getRandomArray(length, 0, 10);
+        int[] a2 = RandomGetter.getRandomArray(length, 0, 10);
+        int[] t1 = RandomGetter.getRandomArray(length - 1, 0, 10);
+        int[] t2 = RandomGetter.getRandomArray(length - 1, 0, 10);
+        int e1 = RandomGetter.getRandomNum(0, 10);
+        int e2 = RandomGetter.getRandomNum(0, 10);
+        int x1 = RandomGetter.getRandomNum(0, 10);
+        int x2 = RandomGetter.getRandomNum(0, 10);
+        int n = length;
+
+
+        for(int i=0;i<n;i++)
+        {
+            System.out.print(a1[i]+ " ");
+        }
+        System.out.print("\n");
+        for(int i=0;i<n;i++)
+        {
+            System.out.print(a2[i]+ " ");
+        }
+        System.out.print("\n");
+        for(int i=0;i<n-1;i++)
+        {
+            System.out.print(t1[i]+ " ");
+        }
+        System.out.print("\n");
+        for(int i=0;i<n-1;i++)
+        {
+            System.out.print(t2[i]+ " ");
+        }
+        System.out.print("\n");
+        System.out.println(e1+" "+e2+" "+x1+" "+x2);
+
+
+
+
+        long startTime1 = System.nanoTime(); //获取开始时间
+        ScheduleAssemblyLine.Result res = ScheduleAssemblyLine.fastestWay(a1.clone(), a2.clone(),
+                t1.clone(), t2.clone(), e1, e2, x1, x2, n);
+        long endTime1 = System.nanoTime(); //获取结束时间
+        System.out.println("动态规划算法运行时间：" + (endTime1 - startTime1) + "ns"); //输出程序运行时间
+        System.out.println(res.fstar+" "+res.lstar);
+
+        for(int i=0;i<n;i++)
+        {
+            System.out.print(res.l1[i]+" ");
+        }
+        System.out.print("\n");
+        for(int i=0;i<n;i++)
+        {
+            System.out.print(res.l2[i]+" ");
+        }
+        System.out.print("\n");
+        ScheduleAssemblyLine.printStationRecursive(res.lstar, res.l1, res.l2, n);
+
+        long startTime2 = System.nanoTime(); //获取开始时间
+        ScheduleAssemblyLine.ResultDC res0 = ScheduleAssemblyLine.fastestWayDC(a1.clone(), a2.clone(),
+                t1.clone(), t2.clone(), e1, e2, x1, x2, n);
+        long endTime2 = System.nanoTime(); //获取结束时间
+        System.out.println("分治算法运行时间：" + (endTime2 - startTime2) + "ns"); //输出程序运行时间
+        System.out.println(res0.fstar+" "+res0.lstar);
+
+        for(int i=0;i<n;i++)
+        {
+            System.out.print(res0.l1[i]+" ");
+        }
+        System.out.print("\n");
+        for(int i=0;i<n;i++)
+        {
+            System.out.print(res0.l2[i]+" ");
+        }
+        System.out.print("\n");
+        for(int i=0;i<n;i++)
+        {
+            System.out.print(res0.l3[i]+" ");
+        }
+        System.out.print("\n");
+        for(int i=0;i<n;i++)
+        {
+            System.out.print(res0.l4[i]+" ");
+        }
+        System.out.print("\n");
+        ScheduleAssemblyLine.printStationRecursiveDC(res0.lstar, res0.l1, res0.l2, res0.l3, res0.l4,0, n-1);
+
+
 */
