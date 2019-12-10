@@ -318,16 +318,16 @@ public class ScheduleAssemblyLine {
 
 ------------------------比较分治算法和动态规划运行时间------------------------
         //设定随机生成数组的规模
-        int length = 5;
+        int length = 10000;
         //随机生成整数数组
-        int[] a1 = RandomGetter.getRandomArray(length, 0, 10);
-        int[] a2 = RandomGetter.getRandomArray(length, 0, 10);
-        int[] t1 = RandomGetter.getRandomArray(length - 1, 0, 10);
-        int[] t2 = RandomGetter.getRandomArray(length - 1, 0, 10);
-        int e1 = RandomGetter.getRandomNum(0, 10);
-        int e2 = RandomGetter.getRandomNum(0, 10);
-        int x1 = RandomGetter.getRandomNum(0, 10);
-        int x2 = RandomGetter.getRandomNum(0, 10);
+        int[] a1 = RandomGetter.getRandomArray(length, 0, 100);
+        int[] a2 = RandomGetter.getRandomArray(length, 0, 100);
+        int[] t1 = RandomGetter.getRandomArray(length - 1, 0, 100);
+        int[] t2 = RandomGetter.getRandomArray(length - 1, 0, 100);
+        int e1 = RandomGetter.getRandomNum(0, 10000);
+        int e2 = RandomGetter.getRandomNum(0, 10000);
+        int x1 = RandomGetter.getRandomNum(0, 10000);
+        int x2 = RandomGetter.getRandomNum(0, 10000);
         int n = length;
 
 

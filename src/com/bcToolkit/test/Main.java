@@ -8,39 +8,25 @@ import java.util.Random;
 public class Main {
 
     public static void main(String[] args) {
-
-        //设定随机生成数组的规模
-        int length = 5;
-        //随机生成整数数组
-        int[] a1 = RandomGetter.getRandomArray(length, 0, 10);
-        int[] a2 = RandomGetter.getRandomArray(length, 0, 10);
-        int[] t1 = RandomGetter.getRandomArray(length - 1, 0, 10);
-        int[] t2 = RandomGetter.getRandomArray(length - 1, 0, 10);
-        int e1 = RandomGetter.getRandomNum(0, 10);
-        int e2 = RandomGetter.getRandomNum(0, 10);
-        int x1 = RandomGetter.getRandomNum(0, 10);
-        int x2 = RandomGetter.getRandomNum(0, 10);
-        int n = length;
+        //int[] p = {30, 35, 15, 5, 10, 20, 25};
+        //int[] p = {10, 20, 50, 1, 100};
+        //int[] p = {1,2,3,400,5,6};
 
 
-        long startTime1 = System.nanoTime(); //获取开始时间
-        ScheduleAssemblyLine.Result res = ScheduleAssemblyLine.fastestWay(a1.clone(), a2.clone(),
-                t1.clone(), t2.clone(), e1, e2, x1, x2, n);
-        long endTime1 = System.nanoTime(); //获取结束时间
-        System.out.println("动态规划算法运行时间：" + (endTime1 - startTime1) + "ns"); //输出程序运行时间
-        System.out.println("动态规划结果："+" "+res.fstar);
+        int[] p = RandomGetter.getRandomArray(5, 1, 100);
+
+        int n=p.length-1;
+        int[][] m = new int[n][n];
+        int[][] s = new int[n][n];
+        int res = MatrixChainMulOrder.getOrder(p, m, s);
+        System.out.println("动态规划最少乘法次数："+res);
+
+        //MatrixChainMulOrder.printOrder(s, 0,n-1);
+        int res0 = MatrixChainMulOrder.getOrderGreedy(p);
+        System.out.println("贪心法最少乘法次数："+res0);
 
 
-        System.out.print("\n");
-
-        long startTime2 = System.nanoTime(); //获取开始时间
-        ScheduleAssemblyLine.ResultDC res0 = ScheduleAssemblyLine.fastestWayDC(a1.clone(), a2.clone(),
-                t1.clone(), t2.clone(), e1, e2, x1, x2, n);
-        long endTime2 = System.nanoTime(); //获取结束时间
-        System.out.println("分治算法运行时间：" + (endTime2 - startTime2) + "ns"); //输出程序运行时间
-        System.out.println("分治算法结果"+" "+res0.fstar);
 
     }
-
 }
 
