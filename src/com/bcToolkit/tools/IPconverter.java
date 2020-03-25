@@ -21,7 +21,7 @@ public class IPconverter {
         return res;
     }
     public static String IP2BinStr(String ip){
-        String res = Integer.toBinaryString(IP2Int("192.168.0.1"));
+        String res = Integer.toBinaryString(IP2Int(ip));
         StringBuffer buffer = new StringBuffer(res);
 
         buffer.insert(8, ' ');
